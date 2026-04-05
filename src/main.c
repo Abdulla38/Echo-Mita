@@ -21,26 +21,28 @@ void data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
   (void)pOutput; // unused
 }
 
-// Implemention i/o audio
 int main(int argc, char *argv[]) {
-  // Paths
+  // Path
   char *model_path = "src/model";
 
-  // Variables for speech recognition
   SpeechContext *speech_ctx = speech_init(model_path, SAMPLE_RATE);
 
-  // Check cotext is loaded
-  if (speech_ctx->model == NULL) {
-    fprintf(stderr, "ERROR: could not load model or recognizer not initialized.\n");
+  // Check context is loaded
+  if (speech_ctx == NULL) {
+    fprintf(stderr,
+            "ERROR: could not load model or recognizer not initialized.\n");
     return -1;
   }
-  AudioCapture *capture = capture_create(ma_format_s16, 1, SAMPLE_RATE, data_callback, speech_ctx);
+
+  AudioCapture *capture =
+      capture_create(ma_format_s16, 1, SAMPLE_RATE, data_callback, speech_ctx);
 
   // Check device is created
   if (capture->status != MA_SUCCESS) {
     int error = capture->status;
     fprintf(stderr, "ERROR: could not open capture device. Code: %i\n", error);
     capture_uninit(capture);
+    speech_free(speech_ctx);
     return error;
   }
   printf("Press Space to stop...");
@@ -51,6 +53,7 @@ int main(int argc, char *argv[]) {
     int error = capture->status;
     fprintf(stderr, "ERROR: could not start capture device. Code: %i\n", error);
     capture_uninit(capture);
+    speech_free(speech_ctx);
     return error;
   }
   getchar();
