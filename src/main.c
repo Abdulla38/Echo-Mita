@@ -23,7 +23,7 @@ void data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
 
 int main(int argc, char *argv[]) {
   // Path
-  char *model_path = "src/model";
+  char *model_path = "resources/model";
 
   SpeechContext *speech_ctx = speech_init(model_path, SAMPLE_RATE);
 

@@ -1,5 +1,5 @@
 # Echo Mita
-[![Banner](./src/assets/pictures/header.jpg)](https://store.steampowered.com/app/2527500/MiSide/)
+[![Banner](./resources/pictures/header.jpg)](https://store.steampowered.com/app/2527500/MiSide/)
 
 ![Static Badge](https://img.shields.io/badge/language-blue?style=for-the-badge&logo=C)
 ![Static Badge](https://img.shields.io/badge/chatGPT-green?style=for-the-badge&logo=openai&logoColor=white)
