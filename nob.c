@@ -9,6 +9,7 @@ int main(int argc, char **argv) {
   nob_cmd_append(&cmd, "gcc");
   nob_cmd_append(&cmd, SRC_FOLDER "main.c");
   nob_cmd_append(&cmd, SRC_FOLDER "audio/audio_capture.c");
+  nob_cmd_append(&cmd, SRC_FOLDER "audio/audio_playback.c");
   nob_cmd_append(&cmd, SRC_FOLDER "speech/speech_recognition.c");
   nob_cmd_append(&cmd, "-o", BUILD_FOLDER "Mita");
   nob_cmd_append(&cmd, "-Wall", "-Wextra", "-pedantic", "-lm", "-ldl",
