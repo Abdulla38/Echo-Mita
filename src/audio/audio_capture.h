@@ -10,13 +10,13 @@ typedef struct {
 } AudioCapture;
 
 // Create object
-AudioCapture *capture_create(ma_format format, ma_uint32 channles,
+AudioCapture *create_capture(ma_format format, ma_uint32 channles,
                              ma_uint32 sample_rate,
                              ma_device_data_proc data_callback,
                              void *user_data);
 
 // Methods
-int capture_start(AudioCapture *ctx);
-int capture_stop(AudioCapture *ctx);
-void capture_uninit(AudioCapture *ctx);
+void start_capture(AudioCapture *ctx);
+void stop_capture(AudioCapture *ctx);
+void delete_capture(AudioCapture *ctx);
 #endif // AUDIO_CAPTURE
