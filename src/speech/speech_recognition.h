@@ -12,13 +12,13 @@ typedef struct {
   int has_result;
 } SpeechContext;
 
-SpeechContext *speech_init(const char *model_path, int sample_rate);
+SpeechContext *create_speech(const char *model_path, int sample_rate);
 
 int speech_process_audio(SpeechContext *ctx, const void *data, int size);
 
 const char *speech_get_result(SpeechContext *ctx);
 
 const char *speech_get_partial(SpeechContext *ctx);
-void speech_free(SpeechContext *ctx);
+void delete_speech(SpeechContext *ctx);
 
 #endif // SPEECH_RECOGNITION

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <vosk_api.h>
 
-SpeechContext *speech_init(const char *model_path, int sample_rate) {
+SpeechContext *create_speech(const char *model_path, int sample_rate) {
   // Allocate memory for context
   SpeechContext *ctx = malloc(sizeof(SpeechContext));
   if (ctx == NULL)
@@ -44,7 +44,7 @@ const char *speech_get_partial(SpeechContext *ctx) {
   return vosk_recognizer_partial_result(ctx->recognizer);
 }
 
-void speech_free(SpeechContext *ctx) {
+void delete_speech(SpeechContext *ctx) {
   if (ctx == NULL) {
     return;
   }
