@@ -22,6 +22,10 @@ SpeechContext *speech_init(const char *model_path, int sample_rate) {
     free(ctx);
     return NULL;
   }
+
+  ctx->text[0] = '\0';
+  ctx->has_result = 0;
+
   return ctx;
 }
 

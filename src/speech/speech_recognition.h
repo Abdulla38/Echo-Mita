@@ -3,9 +3,13 @@
 
 #include <vosk_api.h>
 
+#define MAX_TEXT 512
+
 typedef struct {
   VoskModel *model;
   VoskRecognizer *recognizer;
+  char text[MAX_TEXT];
+  int has_result;
 } SpeechContext;
 
 SpeechContext *speech_init(const char *model_path, int sample_rate);
