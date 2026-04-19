@@ -36,7 +36,7 @@ void stop_capture(AudioCapture *ctx) {
   ctx->status = result;
 }
 
-void capture_uninit(AudioCapture *ctx) {
+void delete_capture(AudioCapture *ctx) {
   ma_device_uninit(&ctx->device);
   free(ctx);
 }
