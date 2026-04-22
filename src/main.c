@@ -1,5 +1,6 @@
 #define MINIAUDIO_IMPLEMENTATION
 #include "audio/audio_capture.h"
+#include "audio/audio_playback.h"
 #include "speech/speech_recognition.h"
 #include <stdio.h>
 
@@ -19,6 +20,22 @@ void data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
   }
 
   (void)pOutput; // unused
+}
+
+void playback_callback(ma_device *device, void *output, const void *input,
+                       ma_uint32 frameCount) {
+  AudioPlayback *ctx = (AudioPlayback *)device->pUserData;
+
+  // Read pcm frames
+  if (ctx->has_decoder) {
+    ma_decoder_read_pcm_frames(&ctx->decoder, output, frameCount, NULL);
+  } else {
+    // Make silence
+    memset(output, 0,
+           frameCount * ma_get_bytes_per_frame(device->playback.format,
+                                               device->playback.channels));
+  }
+  (void)input;
 }
 
 int main(int argc, char *argv[]) {
@@ -45,6 +62,18 @@ int main(int argc, char *argv[]) {
     delete_speech(speech_ctx);
     return error;
   }
+  // Create an audio playback with native setting
+  AudioPlayback *playback = create_playback(0, 0, 0, playback_callback);
+
+  if (playback->status != MA_SUCCESS) {
+    int error = playback->status;
+    fprintf(stderr, "ERROR: could not open playback device. Code: %i\n", error);
+    delete_capture(capture);
+    delete_playback(playback);
+    delete_speech(speech_ctx);
+    return error;
+  }
+
   printf("Press Space to stop...");
 
   // Check device is started
@@ -53,12 +82,14 @@ int main(int argc, char *argv[]) {
     int error = capture->status;
     fprintf(stderr, "ERROR: could not start capture device. Code: %i\n", error);
     delete_capture(capture);
+    delete_playback(playback);
     delete_speech(speech_ctx);
     return error;
   }
   getchar();
 
   delete_capture(capture);
+  delete_playback(playback);
   delete_speech(speech_ctx);
   return 0;
 }
