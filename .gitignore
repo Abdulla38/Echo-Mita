@@ -75,3 +75,8 @@ nob.old
 nob.exe
 nob.exe.old
 nob.obj
+
+# Resources
+resources/model-en/
+resources/sounds/Languages/
+resources/sounds/voices/
