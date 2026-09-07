@@ -1,6 +1,7 @@
 #include "audio_playback.h"
 #include <miniaudio/extras/decoders/libvorbis/miniaudio_libvorbis.h>
 #include <miniaudio/miniaudio.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 AudioPlayback *create_playback(ma_format format, ma_uint32 channels,
@@ -39,12 +40,9 @@ void start_playback(AudioPlayback *ctx, const char *path) {
       ctx->device.sampleRate);
   ma_result result = ma_decoder_init_file(path, &decoder_config, &ctx->decoder);
 
-  // if (result == MA_SUCCESS) {
-  //   ctx->has_decoder = 1;
-  //   printf("Sound is loaded: %s\n", path);
-  // } else {
-  //   fprintf(stderr, "ERROR: could not load file %s: %d\n", path, result);
-  // }
+  if (result == MA_SUCCESS) {
+    ctx->has_decoder = 1;
+  }
   ctx->status = result;
 }
 

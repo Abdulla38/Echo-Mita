@@ -1,10 +1,15 @@
+#include <string.h>
 #define MINIAUDIO_IMPLEMENTATION
 #include "audio/audio_capture.h"
 #include "audio/audio_playback.h"
+#include "parser-json/parser.h"
 #include "speech/speech_recognition.h"
+#include <raylib.h>
 #include <stdio.h>
 
 #define SAMPLE_RATE 16000
+
+#define ERROR_Tmp "ERROR: could not"
 
 // Callback function
 void data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
@@ -14,10 +19,14 @@ void data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
   int bytes = frameCount * 2;
 
   if (speech_process_audio(rec, pInput, bytes)) {
-    printf("%s\n", speech_get_result(rec));
-  } else {
-    printf("%s\n", speech_get_partial(rec));
+    // printf("%s\n", speech_get_result(rec));
+    strncpy(rec->text, speech_get_result(rec), MAX_TEXT - 1);
+    rec->text[MAX_TEXT - 1] = '\0';
+    rec->has_result = 1;
   }
+  // else {
+  // printf("%s\n", speech_get_partial(rec));
+  //}
 
   (void)pOutput; // unused
 }
@@ -39,15 +48,16 @@ void playback_callback(ma_device *device, void *output, const void *input,
 }
 
 int main(int argc, char *argv[]) {
+  InitWindow(800, 600, "Mita");
   // Path
   char *model_path = "resources/model";
+  int retval = 0;
 
   SpeechContext *speech_ctx = create_speech(model_path, SAMPLE_RATE);
 
   // Check context is loaded
   if (speech_ctx == NULL) {
-    fprintf(stderr,
-            "ERROR: could not load model or recognizer not initialized.\n");
+    fprintf(stderr, ERROR_Tmp " load model or recognizer not initialized.\n");
     return -1;
   }
 
@@ -56,40 +66,54 @@ int main(int argc, char *argv[]) {
 
   // Check device is created
   if (capture->status != MA_SUCCESS) {
-    int error = capture->status;
-    fprintf(stderr, "ERROR: could not open capture device. Code: %i\n", error);
+    fprintf(stderr, ERROR_Tmp " open capture device. Code: %i\n",
+            capture->status);
     delete_capture(capture);
     delete_speech(speech_ctx);
-    return error;
+    return capture->status;
   }
   // Create an audio playback with native setting
   AudioPlayback *playback = create_playback(0, 0, 0, playback_callback);
 
   if (playback->status != MA_SUCCESS) {
-    int error = playback->status;
-    fprintf(stderr, "ERROR: could not open playback device. Code: %i\n", error);
-    delete_capture(capture);
-    delete_playback(playback);
-    delete_speech(speech_ctx);
-    return error;
+    retval = playback->status;
+    fprintf(stderr, ERROR_Tmp " open playback device. Code: %i\n", retval);
+    goto unload;
   }
 
   printf("Press Space to stop...");
-
+  printf("Device name: %s\n", capture->device.capture.name);
   // Check device is started
   start_capture(capture);
   if (capture->status != MA_SUCCESS) {
-    int error = capture->status;
-    fprintf(stderr, "ERROR: could not start capture device. Code: %i\n", error);
-    delete_capture(capture);
-    delete_playback(playback);
-    delete_speech(speech_ctx);
-    return error;
+    retval = capture->status;
+    fprintf(stderr, ERROR_Tmp " start capture device. Code: %i\n", retval);
+    goto unload;
   }
-  getchar();
 
+  while (!WindowShouldClose()) {
+    if (speech_ctx->has_result) {
+      speech_ctx->has_result = 0;
+      char *result = parse_json(speech_ctx->text);
+      if (strcmp(result, "привет") == 0) {
+
+        // RLAPI float GetMusicTimeLength(Music music); // Get music time length
+        // (in seconds)
+        stop_capture(capture);
+        start_playback(playback, argv[1]);
+        start_capture(capture);
+        free(result);
+      }
+    }
+    BeginDrawing();
+    ClearBackground(RED);
+    EndDrawing();
+  }
+  retval = 0;
+unload:
   delete_capture(capture);
   delete_playback(playback);
   delete_speech(speech_ctx);
-  return 0;
+  CloseWindow();
+  return retval;
 }
